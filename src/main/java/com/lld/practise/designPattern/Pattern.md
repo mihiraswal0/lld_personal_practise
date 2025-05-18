@@ -22,3 +22,16 @@ https://refactoring.guru/images/patterns/diagrams/adapter/example-2x.png?id=0ac6
      What is the Composite Pattern?
        The Composite Pattern lets you compose objects into tree structures to represent part-whole hierarchies. It allows clients to treat individual objects (leaf) and groups of objects (composite) the same way.
 
+
+3. Decorator Pattern
+    Base Pizza -> Cost: X
+    Topping1->Cost x+10
+    Topping2 ->Cost x+20
+
+
+Behavioural Patterns
+1. Ilterator Pattern
+2. Observer Pattern
+3. Startegy Pattern-> CACHE EVICTION,SEAT ALLOCAITON STARTEGY
+4. Template Method-> defineing set of steps in abstract class who eever extends it had to follow the steps
+5. Chain of responinsiblity-> log processing example if i cant process someone else will process it   
