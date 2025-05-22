@@ -10,11 +10,6 @@ public class PractiseApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PractiseApplication.class, args);
-
-//		FactoryMethod factoryMethod=new FactoryMethod();
-//		factoryMethod.implementFactoryMethod();
-		CompositePattern compositePattern=new CompositePattern();
-		compositePattern.implementComposite();
 	}
 
 }
