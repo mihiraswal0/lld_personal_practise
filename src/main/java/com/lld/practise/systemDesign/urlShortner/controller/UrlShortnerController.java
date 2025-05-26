@@ -2,6 +2,7 @@ package com.lld.practise.systemDesign.urlShortner.controller;
 
 import com.lld.practise.systemDesign.urlShortner.dto.request.UrlCreationRequest;
 import com.lld.practise.systemDesign.urlShortner.dto.response.UrlCreationResponse;
+import com.lld.practise.systemDesign.urlShortner.entity.UrlDetails;
 import com.lld.practise.systemDesign.urlShortner.service.CreateShortUrlService;
 import com.lld.practise.systemDesign.urlShortner.service.RedirectUrlService;
 import com.lld.practise.systemDesign.urlShortner.service.RefillService;
@@ -37,7 +38,6 @@ public class UrlShortnerController {
     })
     public ResponseEntity<Void> redirectShortUrl(@PathVariable(value = "shortUrl")String shortUrl){
         String longUrl=redirectUrlService.getLongUrl(shortUrl);
-
         return ResponseEntity.status(HttpStatus.FOUND).header("Location",longUrl).build();
 
     }
@@ -50,17 +50,25 @@ public class UrlShortnerController {
             @ApiResponse(code = 500,message = "Internal server error"),
     }
     )
-    public ResponseEntity<UrlCreationResponse> createShortUrl(@RequestBody @Valid UrlCreationRequest urlCreationRequest){
-        UrlCreationResponse urlCreationResponse=createShortUrlService.shortenUrl(urlCreationRequest);
+    public ResponseEntity<UrlDetails> createShortUrl(@RequestBody @Valid UrlCreationRequest urlCreationRequest){
+        UrlDetails urlDetailsResponse=createShortUrlService.shortenUrl(urlCreationRequest.getLongUrl());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(urlCreationResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(urlDetailsResponse);
     }
 
-    @PostMapping(REFILL_DB)
+    @GetMapping(REFILL_DB)
     @ApiOperation(value = "To fill db with the next X new userId")
     public ResponseEntity<?> refillDb(){
         Map<String,String> response=refillService.refillDb(10);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
+
+    @GetMapping("/refill/redis")
+    public ResponseEntity<?> refillRedis(){
+        String response= refillService.refillRedis();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
 
 }

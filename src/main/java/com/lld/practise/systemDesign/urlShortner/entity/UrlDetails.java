@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class UrlDetails {
 
     @Id
-    @Column(name = "short_url", length = 20)
+    @Column(name = "short_url")
     private String shortUrl;
 
     @Column(name = "long_url", length = 50, nullable = false, unique = true)

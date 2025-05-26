@@ -7,18 +7,26 @@ import com.lld.practise.systemDesign.urlShortner.repository.AvailableIdRepositor
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 import static com.lld.practise.systemDesign.urlShortner.util.Constants.BASE64_ALPHABET;
+import static com.lld.practise.systemDesign.urlShortner.util.Constants.REDIS_QUEUE_NAME;
 
 @Service
 public class RefillService {
 
     private static final int MAX_URL_LENGTH = 6;
+    private static final int REDIS_MAX_SIZE=10;
+
     @Autowired
     private AvailableIdRepository availableIdRepository;
+
+    @Autowired
+    private RedisTemplate<String,String> redisTemplate;
+
 
     private final static Logger logger= LoggerFactory.getLogger(RefillService.class);
 
@@ -63,5 +71,22 @@ public class RefillService {
         base64No.append('0');
     }
     return String.valueOf(base64No.reverse());
+    }
+
+    public String refillRedis(){
+    long requiredKeys=REDIS_MAX_SIZE-redisTemplate.opsForList().size(REDIS_QUEUE_NAME);
+    if(requiredKeys==0){
+        return "No refill needed";
+    }
+    List<AvailableId> unusedIds=availableIdRepository.findUnusedAvailablityStatus(AvailabilityStatus.UNUSED,(int)requiredKeys);
+    if(unusedIds.isEmpty()){
+        return "Free keys not available in db";
+    }
+    List<String> unusedBase64Ids=unusedIds.stream().map(AvailableId::getBase64Id).toList();
+    redisTemplate.opsForList().rightPushAll(REDIS_QUEUE_NAME,unusedBase64Ids);
+    unusedIds.forEach(id->id.setAvailabilityStatus(AvailabilityStatus.LOADED));
+    availableIdRepository.saveAll(unusedIds);
+    return ("Following ids are loaded "+unusedIds.toString());
+
     }
 }

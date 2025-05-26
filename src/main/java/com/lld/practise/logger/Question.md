@@ -62,7 +62,7 @@ proccessLog()->if it passed both Filter. logLevel -> queue
 
 Important:
 
-create seprate thread for logger process runnnign in background
+create seperate thread for logger process running in background
 1. new Thread()
 2. sepreate thread pool with one thread
 3. use own thread pool

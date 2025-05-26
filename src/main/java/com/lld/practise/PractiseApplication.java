@@ -14,18 +14,6 @@ public class PractiseApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PractiseApplication.class, args);
-		ConfigurationService configurationService=new ConfigurationService(LogLevel.WARN);
-		configurationService.addApender(AppenderFactory.createAppender(AppenderType.CONSOLE));
-		IAppender file=AppenderFactory.createAppender(AppenderType.FILE);
-			((FileAppender) file).setPath("log.txt");
-		configurationService.addApender(file);
-		LoggerService loggerService=new LoggerService(configurationService);
-//		loggerService.info("This is an info log");
-		for(int i=0;i<100;i++){
-			final int temp=i;
-			Thread thread= new Thread(()->loggerService.info("This is info logs "+temp));
-			thread.start();
-		}
 	}
 
 }
