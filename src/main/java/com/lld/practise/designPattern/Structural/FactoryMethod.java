@@ -1,6 +1,4 @@
-package com.lld.practise.designPattern;
-
-import java.util.logging.Logger;
+package com.lld.practise.designPattern.Structural;
 
 
 interface Notification {

@@ -1,4 +1,4 @@
-package com.lld.practise.designPattern;
+package com.lld.practise.designPattern.Structural;
 
  class Burger {
     private final String bun;
@@ -58,6 +58,11 @@ package com.lld.practise.designPattern;
     }
 }
 
-public class BuilderPattern {
+class Main{
+     public static void main(String args[]){
+         Burger burger=new Burger.BurgerBuilder("bun1","patty1").tomato(true).build();
+         System.out.println(burger.toString());
+
+     }
 }
 
