@@ -1,4 +1,4 @@
-package com.lld.practise.designPattern.Structural;
+package com.lld.practise.designPattern.Creational;
 
  class Burger {
     private final String bun;
