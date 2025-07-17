@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS users (
+    user_name VARCHAR(20) PRIMARY KEY,
+    file_name VARCHAR(20) NOT NULL
+);

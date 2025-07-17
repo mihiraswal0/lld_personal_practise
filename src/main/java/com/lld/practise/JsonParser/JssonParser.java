@@ -5,36 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-enum TokenType {
-    LEFT_BRACE,     // {
-    RIGHT_BRACE,    // }
-    LEFT_BRACKET,   // [
-    RIGHT_BRACKET,  // ]
-    COMMA,          // ,
-    COLON,          // :
-    STRING,         // "text"
-    NUMBER,         // 123, -45.67
-    TRUE,           // true
-    FALSE,          // false
-    NULL,           // null
-    EOF             // End of input
-}
 
 
- class Token {
-    public final TokenType type;
-    public final String value;
 
-    public Token(TokenType type, String value) {
-        this.type = type;
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return type + (value != null ? "(" + value + ")" : "");
-    }
-}
 
 
  class JsonTokenizer {
@@ -212,3 +185,35 @@ enum TokenType {
         return list;
     }
 }
+
+class Token {
+    public final TokenType type;
+    public final String value;
+
+    public Token(TokenType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return type + (value != null ? "(" + value + ")" : "");
+    }
+}
+
+
+enum TokenType {
+    LEFT_BRACE,     // {
+    RIGHT_BRACE,    // }
+    LEFT_BRACKET,   // [
+    RIGHT_BRACKET,  // ]
+    COMMA,          // ,
+    COLON,          // :
+    STRING,         // "text"
+    NUMBER,         // 123, -45.67
+    TRUE,           // true
+    FALSE,          // false
+    NULL,           // null
+    EOF             // End of input
+}
+

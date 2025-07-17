@@ -1,8 +1,9 @@
 package com.lld.practise.RateLimitter;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
-
 // Marker interface for all strategy-specific configs
  interface RateLimiterConfig {}
 
@@ -44,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 }
 
+
 // Strategy interface
  interface RateLimitStrategy {
     boolean allowRequest(String clientId);
@@ -83,6 +85,56 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 }
 
+class SlidingWindowCounterStrategy implements  RateLimitStrategy{
+     private final int windowSizeSeconds;
+     int capacity;
+     Map<String,Integer>previousCntWindow;
+     Map<String,Integer>curCntWindow;
+     Map<String,Long>lastRequestWindow;
+     ConcurrentHashMap<String,Object> locks;
+
+     public SlidingWindowCounterStrategy(int windowSizeSeconds,int capacity){
+         this.capacity=capacity;
+         this.windowSizeSeconds=windowSizeSeconds;
+         previousCntWindow=new HashMap<>();
+         curCntWindow=new HashMap<>();
+         lastRequestWindow=new HashMap<>();
+         locks=new ConcurrentHashMap<>();
+     }
+
+    @Override
+    public boolean allowRequest(String clientId) {
+        Object lock=locks.computeIfAbsent(clientId,k->new Object());
+        synchronized (lock) {
+            long curTimeSec = System.currentTimeMillis() / 1000;
+            long curWindowNumber = curTimeSec / windowSizeSeconds;
+            long prevWindowNumber = lastRequestWindow.getOrDefault(clientId, 0L);
+
+            lastRequestWindow.putIfAbsent(clientId, curWindowNumber);
+            previousCntWindow.putIfAbsent(clientId, 0);
+            curCntWindow.putIfAbsent(clientId, 0);
+
+            if (curWindowNumber != prevWindowNumber) {
+                previousCntWindow.put(clientId, curCntWindow.getOrDefault(clientId, 0));
+                curCntWindow.put(clientId, 0);
+                lastRequestWindow.put(clientId, curWindowNumber);
+            }
+
+            float curWindowPercentage = (float) (curTimeSec % windowSizeSeconds) / windowSizeSeconds;
+
+            int totalRequestCurrentWindow = (int) (1 - curWindowPercentage) * previousCntWindow.getOrDefault(clientId, 0) + curCntWindow.getOrDefault(clientId, 0);
+            if (totalRequestCurrentWindow < capacity) {
+                totalRequestCurrentWindow += 1;
+                curCntWindow.put(clientId, totalRequestCurrentWindow);
+
+                return true;
+            }
+            return false;
+        }
+
+
+    }
+}
  class TokenBucketStrategy implements RateLimitStrategy {
     private final TokenBucketConfig config;
     private final Map<String, Bucket> clientBuckets = new ConcurrentHashMap<>();
@@ -142,20 +194,26 @@ public class RateLimiter {
  class Main {
     public static void main(String[] args) throws InterruptedException {
         // Fixed Window Rate Limiter
-        FixedWindowConfig fwConfig = new FixedWindowConfig(5, 10); // 5 requests per 10 seconds
-        RateLimiter fixedLimiter = new RateLimiter(new FixedWindowStrategy(fwConfig));
+//        FixedWindowConfig fwConfig = new FixedWindowConfig(5, 10); // 5 requests per 10 seconds
+//        RateLimiter fixedLimiter = new RateLimiter(new FixedWindowStrategy(fwConfig));
+//
+//        for (int i = 0; i < 7; i++) {
+//            System.out.println("Fixed Window: " + fixedLimiter.allowRequest("user1"));
+//        }
+//
+//        // Token Bucket Rate Limiter
+//        TokenBucketConfig tbConfig = new TokenBucketConfig(5, 2); // 5 capacity, 2 tokens per second
+//        RateLimiter tokenLimiter = new RateLimiter(new TokenBucketStrategy(tbConfig));
+//
+//        for (int i = 0; i < 7; i++) {
+//            System.out.println("Token Bucket: " + tokenLimiter.allowRequest("user1"));
+//            Thread.sleep(300);
+//        }
 
-        for (int i = 0; i < 7; i++) {
-            System.out.println("Fixed Window: " + fixedLimiter.allowRequest("user1"));
-        }
-
-        // Token Bucket Rate Limiter
-        TokenBucketConfig tbConfig = new TokenBucketConfig(5, 2); // 5 capacity, 2 tokens per second
-        RateLimiter tokenLimiter = new RateLimiter(new TokenBucketStrategy(tbConfig));
-
-        for (int i = 0; i < 7; i++) {
-            System.out.println("Token Bucket: " + tokenLimiter.allowRequest("user1"));
-            Thread.sleep(300);
+        SlidingWindowCounterStrategy slidingWindowCounterStrategy=new SlidingWindowCounterStrategy(10,5);
+        for(int i=0;i<20;i++){
+            System.out.println("Request number"+i+"result: "+slidingWindowCounterStrategy.allowRequest("1"));
+            Thread.sleep(1000);
         }
     }
 }

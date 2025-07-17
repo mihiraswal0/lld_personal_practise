@@ -1,4 +1,4 @@
-package com.lld.practise.designPattern;
+package com.lld.practise.designPattern.Structural;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,7 +42,7 @@ class Folder implements FileSytem{
 
 
 public class CompositePattern {
-    public void implementComposite(){
+    public static void main(String args[]){
         File file1=new File("file1");
         File file2=new File("file2");
         Folder folder=new Folder("root");

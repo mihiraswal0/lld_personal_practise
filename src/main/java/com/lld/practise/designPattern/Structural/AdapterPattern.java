@@ -1,4 +1,4 @@
-package com.lld.practise.designPattern;
+package com.lld.practise.designPattern.Structural;
 
 class RoundHole{
     private final int radiusLimit;
